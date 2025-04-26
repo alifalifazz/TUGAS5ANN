@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediksi Penyakit Jantung</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script>
+        function isiForm(index) {
+            const data = {{ data | tojson }}[index];
+            document.getElementsByName('Age')[0].value = data.Age;
+            document.getElementsByName('Gender')[0].value = data.Gender;
+            document.getElementsByName('ChestPainType')[0].value = data.ChestPainType;
+            document.getElementsByName('RestingBP')[0].value = data.RestingBP;
+            document.getElementsByName('Cholesterol')[0].value = data.Cholesterol;
+            document.getElementsByName('FastingBS')[0].value = data.FastingBS;
+            document.getElementsByName('RestingECG')[0].value = data.RestingECG;
+            document.getElementsByName('MaxHR')[0].value = data.MaxHR;
+            document.getElementsByName('ExerciseAngina')[0].value = data.ExerciseAngina;
+            document.getElementsByName('Oldpeak')[0].value = data.Oldpeak;
+            document.getElementsByName('ST_Slope')[0].value = data.ST_Slope;
+        }
+    </script>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">Deteksi Penyakit Jantung</h2>
+
+        <form method="POST" class="card p-4 shadow">
+            <div class="row">
+                <div class="col-md-6">
+                    <label>Age</label>
+                    <input type="number" class="form-control" name="Age" required>
+
+                    <label>Gender</label>
+                    <select class="form-control" name="Gender" required>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+
+                    <label>Chest Pain Type</label>
+                    <select class="form-control" name="ChestPainType" required>
+                        <option value="ASY">ASY</option>
+                        <option value="NAP">NAP</option>
+                        <option value="ATA">ATA</option>
+                        <option value="TA">TA</option>
+                    </select>
+
+                    <label>Resting BP</label>
+                    <input type="number" class="form-control" name="RestingBP" required>
+
+                    <label>Cholesterol</label>
+                    <input type="number" class="form-control" name="Cholesterol" required>
+
+                    <label>Fasting BS (0/1)</label>
+                    <input type="number" class="form-control" name="FastingBS" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Resting ECG</label>
+                    <select class="form-control" name="RestingECG" required>
+                        <option value="Normal">Normal</option>
+                        <option value="ST">ST</option>
+                        <option value="LVH">LVH</option>
+                    </select>
+
+                    <label>Max HR</label>
+                    <input type="number" class="form-control" name="MaxHR" required>
+
+                    <label>Exercise Angina</label>
+                    <select class="form-control" name="ExerciseAngina" required>
+                        <option value="N">No</option>
+                        <option value="Y">Yes</option>
+                    </select>
+
+                    <label>Oldpeak</label>
+                    <input type="number" step="0.1" class="form-control" name="Oldpeak" required>
+
+                    <label>ST Slope</label>
+                    <select class="form-control" name="ST_Slope" required>
+                        <option value="Up">Up</option>
+                        <option value="Flat">Flat</option>
+                        <option value="Down">Down</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Prediksi</button>
+        </form>
+
+        {% if prediction %}
+        <div class="alert alert-info text-center mt-4">
+            <h4>{{ prediction }}</h4>
+        </div>
+        {% endif %}
+
+        {% if plot_url %}
+        <div class="text-center mt-3">
+            <img src="data:image/png;base64,{{ plot_url }}" class="img-fluid" style="max-width: 300px;"/>
+        </div>
+        {% endif %}
+
+        <h4 class="mt-5 text-center">Contoh Data</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>No</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Chest Pain Type</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ item['Age'] }}</td>
+                        <td>{{ item['Gender'] }}</td>
+                        <td>{{ item['ChestPainType'] }}</td>
+                        <td><button onclick="isiForm({{ loop.index0 }})" class="btn btn-info btn-sm">Gunakan</button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
