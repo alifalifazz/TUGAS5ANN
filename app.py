@@ -11,27 +11,26 @@ import base64
 app = Flask(__name__)
 model = load_model('model.h5')
 
-# Load dataset dan encode kategori
+# Load dataset
 df_ori = pd.read_csv("heart.csv")
 df = df_ori.copy()
+
+# Encode untuk model
 df["Gender"] = df["Gender"].map({"M": 1, "F": 0})
 df["ChestPainType"] = df["ChestPainType"].map({"ASY": 0, "NAP": 1, "ATA": 2, "TA": 3})
 df["RestingECG"] = df["RestingECG"].map({"Normal": 0, "ST": 1, "LVH": 2})
 df["ExerciseAngina"] = df["ExerciseAngina"].map({"N": 0, "Y": 1})
 df["ST_Slope"] = df["ST_Slope"].map({"Up": 0, "Flat": 1, "Down": 2})
 
-# Prediksi seluruh data untuk ambil contoh
+# Prediksi seluruh data
 scaler = MinMaxScaler()
 X = scaler.fit_transform(df.drop("HeartDisease", axis=1))
-y = df["HeartDisease"].values
 y_pred = model.predict(X).flatten()
 y_pred_class = np.where(y_pred >= 0.5, 1, 0)
 df_ori["Prediksi"] = y_pred_class
 
-# Ambil contoh data
-terindikasi = df_ori[df_ori["Prediksi"] == 1].head(5)
-tidak_terindikasi = df_ori[df_ori["Prediksi"] == 0].head(5)
-contoh_data = pd.concat([terindikasi, tidak_terindikasi])
+# Ambil contoh data 10 baris, semua kolom
+contoh_data = df_ori.head(10)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -59,7 +58,7 @@ def index():
             pred = model.predict(scaled_input)[0][0]
             prediction = "Terindikasi Penyakit Jantung" if pred >= 0.5 else "Tidak Terindikasi"
 
-            # Buat grafik perbandingan aktual vs prediksi 1 data
+            # Grafik prediksi
             plt.figure(figsize=(4,4))
             actual = [1.0 if prediction == "Terindikasi Penyakit Jantung" else 0.0]
             plt.bar(["Aktual", "Prediksi"], [actual[0], pred], color=["blue", "red"])
@@ -71,8 +70,9 @@ def index():
             plot_url = base64.b64encode(buf.read()).decode("utf-8")
 
         except Exception as e:
-            prediction = f"Error: {e}"
+            prediction = f"Terjadi kesalahan input: {e}"
+
     return render_template("index.html", prediction=prediction, data=contoh_data.to_dict(orient="records"), plot_url=plot_url)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
