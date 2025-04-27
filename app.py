@@ -7,6 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import io
 import base64
+import os  # <<< Tambahkan ini
 
 app = Flask(__name__)
 model = load_model('model.h5')
@@ -74,5 +75,7 @@ def index():
 
     return render_template("index.html", prediction=prediction, data=contoh_data.to_dict(orient="records"), plot_url=plot_url)
 
+# Ini yang diperbaiki untuk Railway!
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get('PORT', 5000))  # pakai PORT dari Railway
+    app.run(host="0.0.0.0", port=port)
